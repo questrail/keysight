@@ -4,6 +4,11 @@ This file contains all notable changes to the [keysight][] project.
 ## Unreleased
 
 
+## v0.1.1 - 2014-08-15
+
+### Enhancments
+- Add Travis-CI, gitignore, and Coveralls
+
 ## v0.1 - 2014-08-15
 
 ### Enhancements

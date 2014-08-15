@@ -1,0 +1,19 @@
+language: python
+python:
+- '2.6'
+- '2.7'
+- '3.3'
+- '3.4'
+install:
+- pip install -r requirements.txt
+- pip install coveralls
+script: nosetests --with-coverage --cover-package=keysight
+after_success: coveralls
+deploy:
+  provider: pypi
+  user: mdrpypi
+  password:
+    secure: KcgZ1SJzZkKEATg3iDg8TtBRSr44WRmgHzFtyS//qOrt82xgdZpvyF5QbI3uRU2qKQaewKUFRNQifsLgbhW9b01FZ+GpQTWW2Ft1fHYWuS/GsbJQiDu+1LCH6mvlIK6flgxBPC5kQGKUGKwNDfu0ecctvPzwZyiKQhQ9Xf19pfo=
+  on:
+    tags: true
+    repo: questrail/keysight
