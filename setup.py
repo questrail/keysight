@@ -48,7 +48,7 @@ setup(
     license='MIT',
     description='Package for working with Keysight/Agilent/HP test equipment',
     long_description=long_description,
-    install_requires=['numpy (>=1.6.0)'],
+    install_requires=['numpy>=1.6.0'],
     classifiers=[
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
