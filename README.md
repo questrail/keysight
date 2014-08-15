@@ -5,9 +5,9 @@
 [![Coverage Status][coveralls image]][coveralls link]
 [![License Badge][license image]][LICENSE.txt]
 
-[keysight][] is a Python package providing modules and helpers to work
-with data files from [Keysight Technologies][key] (formerly Agilent/HP)
-test equipment.
+[keysight][] is a Python (2.6+) package providing modules and helpers to
+work with data files from [Keysight Technologies][key] (formerly
+Agilent/HP) test equipment.
 
 ## Requirements
 

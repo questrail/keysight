@@ -3,6 +3,11 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+## v0.1.2 - 2014-08-15
+
+### Bugs
+- Removed Python 3.3/3.4 from Travis-CI since those builds are currently
+  failing.
 
 ## v0.1.1 - 2014-08-15
 
