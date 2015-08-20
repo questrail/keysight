@@ -3,7 +3,7 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
-## v0.2.0 - 2015-08-20
+## v0.2.1 - 2015-08-20
 
 ### Added
 - Added coverage to `inv test` task
