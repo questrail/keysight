@@ -15,6 +15,15 @@ Agilent/HP) test equipment.
 
 ## Contributing
 
+### Sample CSV and other data files
+
+Currently, the only sample file we have to test is the CSV file from a
+N9340B spectrum analyzer. If you have other data files saved from a
+Keysight/Agilent/HP piece of test equipment and are willing to share it,
+please open an issue or submit a pull request to let us know.
+
+### Submitting Pull Requests
+
 [keysight][] is developed using [Scott Chacon][]'s [GitHub Flow][]. To
 contribute, fork [keysight][], create a feature branch, and then submit
 a pull request.  [GitHub Flow][] is summarized as:

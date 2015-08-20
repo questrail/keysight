@@ -3,6 +3,16 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+## v0.2.0 - 2015-08-20
+
+### Added
+- Added coverage to `inv test` task
+
+### Changed
+- Updated pip requirements including numpy
+- Migrated from Travis legacy to container-based infrastructure
+- Remove pypi deploy from `inv release` task and use Travis instead
+
 ## v0.1.2 - 2014-08-15
 
 ### Bugs

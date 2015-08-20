@@ -12,7 +12,7 @@ def lint():
 @task(lint)
 def test():
     """Lint, unit test, and check setup.py"""
-    run("nosetests")
+    run("nosetests --with-coverage --cover-package=keysight")
     run("python setup.py check")
 
 
@@ -31,13 +31,13 @@ def release(deploy=False, test=False, version=''):
             run("git tag -a v{ver} -m 'v{ver}'".format(ver=version))
             run("git push")
             run("git push origin --tags")
-            run("python setup.py register sdist upload")
     else:
         print("- Have you updated the version?")
-        print("- Have you updated CHANGES.md?")
+        print("- Have you updated CHANGELOG.md?")
         print("- Have you fixed any last minute bugs?")
         print("If you answered yes to all of the above questions,")
-        print("then run `invoke release --deploy -vX.YY` to:")
+        print("then run `invoke release --deploy -vX.YY.ZZ` to:")
         print("- Checkout master")
-        print("- Tag the git release with provided vX.YY version")
+        print("- Tag the git release with provided vX.YY.ZZ version")
         print("- Push the master branch and tags to repo")
+        print("- Deploy to PyPi using Travis")
