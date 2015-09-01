@@ -17,8 +17,8 @@ Agilent/HP) test equipment.
 
 ### Sample CSV and other data files
 
-Currently, the only sample file we have to test is the CSV file from a
-N9340B spectrum analyzer. If you have other data files saved from a
+Currently, the only sample files tested are the CSV files from a N9340B
+and E4411B spectrum analyzer. If you have other data files saved from a
 Keysight/Agilent/HP piece of test equipment and are willing to share it,
 please open an issue or submit a pull request to let us know.
 

@@ -3,6 +3,11 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+## v0.3.0 - 2015-09-01
+
+### Added
+- Ability to parse CSV files from E4411B Spectrum Analyzer
+
 ## v0.2.1 - 2015-08-20
 
 ### Added
