@@ -14,6 +14,7 @@ from __future__ import absolute_import
 
 # Standard module imports
 import csv
+import sys
 
 # Data analysis related imports
 import numpy as np
@@ -23,33 +24,46 @@ def read_csv_file(filename):
     """Read csv file into a numpy array
     """
     header_info = {}
-    with open(filename, 'rb') as csvfile:
-        data = csv.reader((line.replace(b'\0', b'') for line in csvfile),
-                          delimiter=b',')
-        temp_row = data.next()
+    # Make this Py2.x and Py3.x compatible
+    if sys.version_info[0] < 3:
+        infile = open(filename, 'rb')
+    else:
+        infile = open(filename, 'r', newline='', encoding='utf8')
+
+    with infile as csvfile:
+        # Make this Py2.x and Py3.x compatible
+        if sys.version_info[0] < 3:
+            data = csv.reader((line.replace(b'\0', b'') for line in csvfile),
+                              delimiter=',')
+            mynext = data.next
+        else:
+            data = csv.reader((line.replace('\0', '') for line in csvfile),
+                              delimiter=',')
+            mynext = data.__next__
+        temp_row = mynext()
         header_info['timestamp'] = temp_row[0]
         header_info['file'] = temp_row[1]
-        header_info['title'] = data.next()[1]
-        header_info['model'] = data.next()[1]
-        header_info['serial_number'] = data.next()[1]
-        temp_row = data.next()
+        header_info['title'] = mynext()[1]
+        header_info['model'] = mynext()[1]
+        header_info['serial_number'] = mynext()[1]
+        temp_row = mynext()
         header_info['center_freq'] = float(temp_row[1])
-        temp_row = data.next()
+        temp_row = mynext()
         header_info['span_freq'] = float(temp_row[1])
-        temp_row = data.next()
+        temp_row = mynext()
         header_info['resolution_bw'] = float(temp_row[1])
-        temp_row = data.next()
+        temp_row = mynext()
         header_info['video_bw'] = float(temp_row[1])
-        temp_row = data.next()
+        temp_row = mynext()
         header_info['ref_level'] = float(temp_row[1])
-        temp_row = data.next()
+        temp_row = mynext()
         header_info['sweep_time'] = float(temp_row[1])
-        temp_row = data.next()
+        temp_row = mynext()
         header_info['num_points'] = int(temp_row[1])
-        temp_row = data.next()  # Skip blank line 12
-        temp_row = data.next()  # Skip blank line 13
-        temp_row = data.next()
-        temp_row = data.next()
+        temp_row = mynext()  # Skip blank line 12
+        temp_row = mynext()  # Skip blank line 13
+        temp_row = mynext()
+        temp_row = mynext()
         header_info['frequency'] = temp_row[0]
 
         data_array = []

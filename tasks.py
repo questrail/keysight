@@ -4,20 +4,22 @@ TESTPYPI = "https://testpypi.python.org/pypi"
 
 
 @task
-def lint():
+def lint(ctx):
     """Run flake8 to lint code"""
     run("flake8")
 
 
 @task(lint)
-def test():
+def test(ctx):
     """Lint, unit test, and check setup.py"""
-    run("nosetests --with-coverage --cover-package=keysight")
-    run("python setup.py check")
+    cmd = "{} {}".format(
+        "nosetests",
+        "--with-coverage --cover-erase --cover-package=keysight --cover-html")
+    run(cmd)
 
 
 @task()
-def release(deploy=False, test=False, version=''):
+def release(ctx, deploy=False, test=False, version=''):
     """Tag release, run Travis-CI, and deploy to PyPI
     """
     if test:
