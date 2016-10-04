@@ -5,13 +5,19 @@
 [![Coverage Status][coveralls image]][coveralls link]
 [![License Badge][license image]][LICENSE.txt]
 
-[keysight][] is a Python (2.6+) package providing modules and helpers to
+[keysight][] is a Python (2.6+/3.3+) package providing modules and helpers to
 work with data files from [Keysight Technologies][key] (formerly
 Agilent/HP) test equipment.
 
-## Requirements
+## Dependencies
+
+### Runtime Dependencies
 
 - [numpy][]
+
+### Development Dependencies
+
+- [invoke][]
 
 ## Contributing
 
@@ -40,7 +46,9 @@ a pull request.  [GitHub Flow][] is summarized as:
 - Once it is merged and pushed to `master`, you can and *should* deploy
   immediately.
 
-# License
+## Testing
+
+## License
 
 [keysight] is released under the MIT license. Please see the
 [LICENSE.txt] file for more information.
@@ -50,6 +58,7 @@ a pull request.  [GitHub Flow][] is summarized as:
 [coveralls image]: http://img.shields.io/coveralls/questrail/keysight/master.svg
 [coveralls link]: https://coveralls.io/r/questrail/keysight
 [github flow]: http://scottchacon.com/2011/08/31/github-flow.html
+[invoke]: http://www.pyinvoke.org
 [LICENSE.txt]: https://github.com/questrail/keysight/blob/develop/LICENSE.txt
 [license image]: http://img.shields.io/pypi/l/keysight.svg
 [numpy]: http://www.numpy.org
