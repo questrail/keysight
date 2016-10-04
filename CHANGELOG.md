@@ -3,6 +3,11 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+## v0.4.1 - 04-Oct-16
+
+### Added
+- Ability to run on Python 3.3+ in addition to Python 2.6+
+
 ## v0.3.0 - 2015-09-01
 
 ### Added
