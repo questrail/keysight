@@ -34,7 +34,7 @@ def read_csv_file(filename):
         # Make this Py2.x and Py3.x compatible
         if sys.version_info[0] < 3:
             data = csv.reader((line.replace(b'\0', b'') for line in csvfile),
-                              delimiter=',')
+                              delimiter=b',')
             mynext = data.next
         else:
             data = csv.reader((line.replace('\0', '') for line in csvfile),

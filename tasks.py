@@ -9,6 +9,12 @@ def lint(ctx):
     run("flake8")
 
 
+@task
+def freeze(ctx):
+    """Freeze the pip requirements"""
+    run("pip freeze -l > requirements.txt")
+
+
 @task(lint)
 def test(ctx):
     """Lint, unit test, and check setup.py"""
@@ -18,7 +24,7 @@ def test(ctx):
     run(cmd)
 
 
-@task()
+@task
 def release(ctx, deploy=False, test=False, version=''):
     """Tag release, run Travis-CI, and deploy to PyPI
     """
