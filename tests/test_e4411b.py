@@ -15,9 +15,9 @@ import unittest
 
 from unipath import Path
 
-TEST_DIR = Path(__file__).ancestor(1)
-
 from keysight import e4411b
+
+TEST_DIR = Path(__file__).ancestor(1)
 
 
 class TestReadingCSVFiles(unittest.TestCase):
