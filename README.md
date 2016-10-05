@@ -18,6 +18,17 @@ Agilent/HP) test equipment.
 ### Development Dependencies
 
 - [invoke][]
+- [nose][]
+- [unipath][]
+
+## Support Keysight Equipment
+
+### Spectrum Analyzers
+Below are the modules available in the keysight package and the
+compatible equipment for each module:
+
+- n9340: N9340 spectrum analyzer
+- e4411b: E4411B, E4402B spectrum analyzers
 
 ## Contributing
 
@@ -61,6 +72,7 @@ a pull request.  [GitHub Flow][] is summarized as:
 [invoke]: http://www.pyinvoke.org
 [LICENSE.txt]: https://github.com/questrail/keysight/blob/develop/LICENSE.txt
 [license image]: http://img.shields.io/pypi/l/keysight.svg
+[nose]: http://nose.readthedocs.io/en/latest/
 [numpy]: http://www.numpy.org
 [pull request]: https://help.github.com/articles/using-pull-requests
 [pypi ver image]: http://img.shields.io/pypi/v/keysight.svg
@@ -70,3 +82,4 @@ a pull request.  [GitHub Flow][] is summarized as:
 [siganalysis]: https://github.com/questrail/siganalysis
 [travis image]: http://img.shields.io/travis/questrail/keysight/master.svg
 [travis link]: https://travis-ci.org/questrail/keysight
+[unipath]: https://github.com/mikeorr/Unipath

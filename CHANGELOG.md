@@ -3,6 +3,11 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+## v0.5.1 - 05-Oct-16
+
+### Fixed
+- Ability to handle 1-3 traces on E4411B
+
 ## v0.5.0 - 04-Oct-16
 
 ### Added
