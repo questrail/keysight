@@ -1,6 +1,19 @@
-from invoke import run, task
+# -*- coding: utf-8 -*-
+# Copyright (c) 2013-2016 The keysight developers. All rights reserved.
+# Project site: https://github.com/questrail/keysight
+# Use of this source code is governed by a MIT-style license that
+# can be found in the LICENSE.txt file for the project.
+"""Invoke based tasks for keysight
+"""
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
 
-TESTPYPI = "https://testpypi.python.org/pypi"
+from invoke import run, task
+from unipath import Path
+
+ROOT_DIR = Path(__file__).ancestor(1)
 
 
 @task
@@ -12,7 +25,8 @@ def lint(ctx):
 @task
 def freeze(ctx):
     """Freeze the pip requirements"""
-    run("pip freeze -l > requirements.txt")
+    run("pip freeze -l > {req}".format(
+        req=Path(ROOT_DIR, 'requirements.txt')))
 
 
 @task(lint)
