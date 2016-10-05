@@ -63,7 +63,8 @@ def read_csv_file(filename):
         temp_row = mynext()  # Skip blank line 12
         temp_row = mynext()  # Skip blank line 13
         temp_row = mynext()
-        num_traces = len(temp_row)
+        num_traces = len(temp_row) - 1
+        header_info['num_traces'] = num_traces
         temp_row = mynext()
         header_info['frequency'] = temp_row[0]
 
@@ -79,22 +80,21 @@ def read_csv_file(filename):
         elif num_traces == 2:
             for row in data:
                 data_array.append((float(row[0]),
-                                   float(row[1]),
-                                   float(row[2])))
+                                   [float(row[1]),
+                                   float(row[2])]))
             data = np.array(
                 data_array,
-                dtype={'names': ('frequency', 'amplitude1', 'amplitude2'),
-                       'formats': ('f8', 'f8', 'f8')})
+                dtype={'names': ('frequency', 'amplitude'),
+                       'formats': ('f8', '2f8')})
         elif num_traces == 3:
             for row in data:
                 data_array.append((float(row[0]),
-                                   float(row[1]),
+                                   [float(row[1]),
                                    float(row[2]),
-                                   float(row[3])))
+                                   float(row[3])]))
             data = np.array(
                 data_array,
-                dtype={'names': ('frequency', 'amplitude1',
-                                 'amplitude2', 'amplitude3'),
-                       'formats': ('f8', 'f8', 'f8', 'f8')})
+                dtype={'names': ('frequency', 'amplitude'),
+                       'formats': ('f8', '3f8')})
 
     return (header_info, data)
