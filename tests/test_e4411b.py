@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2013-2015 The keysight developers. All rights reserved.
+# Copyright (c) 2013-2016 The keysight developers. All rights reserved.
 # Project site: https://github.com/questrail/keysight
 # Use of this source code is governed by a MIT-style license that
 # can be found in the LICENSE.txt file for the project.
@@ -12,12 +12,19 @@ from __future__ import division
 from __future__ import absolute_import
 
 import unittest
+import logging
 
 from unipath import Path
 
 from keysight import e4411b
 
 TEST_DIR = Path(__file__).ancestor(1)
+
+# Setup logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format=' %(asctime)s -  %(levelname)s - %(message)s'
+)
 
 
 class TestReadingCSVFiles(unittest.TestCase):
@@ -41,18 +48,22 @@ class TestReadingCSVFiles(unittest.TestCase):
         self.assertEqual(self.header['resolution_bw'], 100000)
         self.assertEqual(self.header['video_bw'], 100000)
         self.assertEqual(self.header['sweep_time'], 0.0644205)
+        self.assertEqual(self.header['num_traces'], 3)
         self.assertEqual(self.header['num_points'], 401)
 
     def test_data_when_reading_csv_file(self):
         self.assertEqual(self.data.shape, (401,))
+        self.assertEqual(self.data['amplitude'].shape, (401, 3))
         self.assertEqual(self.data['frequency'][0], 500000000)
-        self.assertEqual(self.data['amplitude'][0], 3.7123)
+        self.assertEqual(self.data['amplitude'][0][0], 3.7123)
+        self.assertEqual(self.data['amplitude'][0][1], -2147.48)
+        self.assertEqual(self.data['amplitude'][0][2], -2147.48)
         self.assertEqual(self.data['frequency'][1], 501250000)
-        self.assertEqual(self.data['amplitude'][1], 3.3353)
+        self.assertEqual(self.data['amplitude'][1][0], 3.3353)
         self.assertEqual(self.data['frequency'][-2], 998750000)
-        self.assertEqual(self.data['amplitude'][-2], 3.9023)
+        self.assertEqual(self.data['amplitude'][-2][0], 3.9023)
         self.assertEqual(self.data['frequency'][-1], 1000000000)
-        self.assertEqual(self.data['amplitude'][-1], 3.5163)
+        self.assertEqual(self.data['amplitude'][-1][0], 3.5163)
 
 if __name__ == '__main__':
     unittest.main()
