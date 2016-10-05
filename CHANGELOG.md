@@ -3,6 +3,11 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+## v0.5.0 - 04-Oct-16
+
+### Added
+- Ability to handle 1-3 traces instead of just 1 trace
+
 ## v0.4.1 - 04-Oct-16
 
 ### Added
