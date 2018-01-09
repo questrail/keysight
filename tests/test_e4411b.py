@@ -67,5 +67,6 @@ class TestReadingCSVFiles(unittest.TestCase):
         self.assertEqual(self.data['frequency'][-1], 1000000000)
         self.assertEqual(self.data['amplitude'][-1][0], 3.5163)
 
+
 if __name__ == '__main__':
     unittest.main()

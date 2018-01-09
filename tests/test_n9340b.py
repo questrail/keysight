@@ -66,5 +66,6 @@ class TestReadingCSVFiles(unittest.TestCase):
         self.assertEqual(self.n9340_data['frequency'][-2], 29935000)
         self.assertEqual(self.n9340_data['amplitude_db'][-2], -72.84)
 
+
 if __name__ == '__main__':
     unittest.main()

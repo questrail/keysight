@@ -95,5 +95,5 @@ def _get_ref(s):
     """
     try:
         return float(s)
-    except:
+    except ValueError:
         return float(s[:-3])
