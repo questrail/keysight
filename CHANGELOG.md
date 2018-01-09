@@ -3,6 +3,11 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+## v1.0.1 - 09-Jan-18
+
+### Fixed
+- Return the proper ref if it has units of dBm or dBuV.
+
 ## v1.0.0 - 09-Jan-18
 
 ### Changed

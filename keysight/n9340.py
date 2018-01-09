@@ -14,6 +14,7 @@ from __future__ import absolute_import
 
 # Standard module imports
 import csv
+import re
 import sys
 
 # Data analysis related imports
@@ -93,7 +94,8 @@ def read_csv_file(filename):
 def _get_ref(s):
     """Convert given string into the reference level
     """
-    try:
-        return float(s)
-    except ValueError:
-        return float(s[:-3])
+    match = re.search('[\d.]+', s)
+    if match:
+        return float(match.group())
+    else:
+        return ''
