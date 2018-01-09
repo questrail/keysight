@@ -3,6 +3,12 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+## v0.6.0 - 09-Jan-18
+
+### Fixed
+- If the N9340 data file has units on the ref value in the CSV, then
+  return just the value and don't throw an exception.
+
 ## v0.5.1 - 05-Oct-16
 
 ### Fixed
