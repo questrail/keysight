@@ -59,7 +59,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'License :: OSI Approved :: MIT License',
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Operating System :: OS Independent',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Libraries :: Python Modules',

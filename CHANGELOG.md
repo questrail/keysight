@@ -3,6 +3,11 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+## v1.0.0 - 09-Jan-18
+
+### Changed
+- Don't auto deplay using Travis, since that's problematic.
+
 ## v0.6.1 - 09-Jan-18
 
 ### Changed

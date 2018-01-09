@@ -43,16 +43,17 @@ def release(ctx, deploy=False, test=False, version=''):
     """Tag release, run Travis-CI, and deploy to PyPI
     """
     if test:
-        run("python setup.py check")
-        run("python setup.py register sdist upload --dry-run")
+        run("python3 setup.py check")
+        run("python3 setup.py register sdist upload --dry-run")
 
     if deploy:
-        run("python setup.py check")
+        run("python3 setup.py check")
         if version:
             run("git checkout master")
             run("git tag -a v{ver} -m 'v{ver}'".format(ver=version))
             run("git push")
             run("git push origin --tags")
+            run("python3 setup.py register sdist upload")
     else:
         print("- Have you updated the version?")
         print("- Have you updated CHANGELOG.md?")
