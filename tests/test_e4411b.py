@@ -60,6 +60,8 @@ class TestReadingCSVFiles(unittest.TestCase):
         self.assertEqual(self.data['amplitude'][0][2], -2147.48)
         self.assertEqual(self.data['frequency'][1], 501250000)
         self.assertEqual(self.data['amplitude'][1][0], 3.3353)
+        self.assertEqual(self.data['amplitude'][1][1], -2147.48)
+        self.assertEqual(self.data['amplitude'][1][2], -2147.48)
         self.assertEqual(self.data['frequency'][-2], 998750000)
         self.assertEqual(self.data['amplitude'][-2][0], 3.9023)
         self.assertEqual(self.data['frequency'][-1], 1000000000)

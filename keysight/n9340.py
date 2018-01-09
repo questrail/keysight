@@ -43,7 +43,7 @@ def read_csv_file(filename):
         n9340_header['file'] = mynext()[1]
         n9340_header['system_parameter'] = mynext()[1]
         temp_row = mynext()
-        n9340_header['ref'] = float(temp_row[1])
+        n9340_header['ref'] = _get_ref(temp_row[1])
         n9340_header['ref_offset'] = float(temp_row[3])
         temp_row = mynext()
         n9340_header['start_freq'] = float(temp_row[1])
@@ -88,3 +88,12 @@ def read_csv_file(filename):
                    'formats': ('f8', 'f8')})
 
     return (n9340_header, n9340_data)
+
+
+def _get_ref(s):
+    """Convert given string into the reference level
+    """
+    try:
+        return float(s)
+    except:
+        return float(s[:-3])
