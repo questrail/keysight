@@ -3,6 +3,11 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+## v0.6.1 - 09-Jan-18
+
+### Changed
+- Changed Python versions to 2.7, 3.4, 3.5, and 3.6.
+
 ## v0.6.0 - 09-Jan-18
 
 ### Fixed
