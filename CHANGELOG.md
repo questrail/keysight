@@ -3,6 +3,12 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+
+## v1.1.0 - 11-Jan-18
+
+### Fixed
+- Handle case where N9340 file has a marker.
+
 ## v1.0.1 - 09-Jan-18
 
 ### Fixed
