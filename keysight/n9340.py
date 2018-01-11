@@ -73,6 +73,11 @@ def read_csv_file(filename):
         n9340_header['psd_mode'] = temp_row[1]
         temp_row = mynext()
         temp_row = mynext()
+        if temp_row[0] == 'Marker':
+            # File has a marker, so skip that for now.
+            temp_row = mynext()
+            temp_row = mynext()
+            temp_row = mynext()
         # FIXME(mdr) Use a regex or something better than this
         n9340_header['trace_unit'] = temp_row[0].split(':')[2][:-1]
         temp_row = mynext()
