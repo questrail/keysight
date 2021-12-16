@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2013-2015 The keysight developers. All rights reserved.
+# Copyright (c) 2013-2022 The keysight developers. All rights reserved.
 # Project site: https://github.com/questrail/keysight
 # Use of this source code is governed by a MIT-style license that
 # can be found in the LICENSE.txt file for the project.
 """Read a CSV file saved by an E4411B Spectrum Analyzer
 """
-
-# Try to future proof code so that it's Python 3.x ready
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
 
 # Standard module imports
 import csv

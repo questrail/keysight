@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2013-2016 The keysight developers. All rights reserved.
+# Copyright (c) 2013-2022 The keysight developers. All rights reserved.
 # Project site: https://github.com/questrail/keysight
 # Use of this source code is governed by a MIT-style license that
 # can be found in the LICENSE.txt file for the project.
 """Read a CSV file saved by an N9340 Spectrum Analyzer
 """
-
-# Try to future proof code so that it's Python 3.x ready
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
 
 # Standard module imports
 import csv
@@ -99,7 +93,7 @@ def read_csv_file(filename):
 def _get_ref(s):
     """Convert given string into the reference level
     """
-    match = re.search('[\d.]+', s)
+    match = re.search(r'[\d.]+', s)
     if match:
         return float(match.group())
     else:

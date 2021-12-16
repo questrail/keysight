@@ -5,10 +5,6 @@
 # can be found in the LICENSE.txt file for the project.
 """Invoke based tasks for keysight
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
 
 from invoke import run, task
 from unipath import Path
@@ -53,7 +49,8 @@ def release(ctx, deploy=False, test=False, version=''):
             run("git tag -a v{ver} -m 'v{ver}'".format(ver=version))
             run("git push")
             run("git push origin --tags")
-            run("python3 setup.py register sdist upload")
+            run("python3 -m build")
+            run("python3 -m twine upload dist/*")
     else:
         print("- Have you updated the version?")
         print("- Have you updated CHANGELOG.md?")

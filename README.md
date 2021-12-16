@@ -5,9 +5,9 @@
 [![Coverage Status][coveralls image]][coveralls link]
 [![License Badge][license image]][LICENSE.txt]
 
-[keysight][] is a Python (2.7+/3.4+) package providing modules and helpers to
-work with data files from [Keysight Technologies][key] (formerly
-Agilent/HP) test equipment.
+[keysight][] is a Python 3.4+ package providing modules and helpers to work with
+data files from [Keysight Technologies][key] (formerly Agilent/HP) test
+equipment.
 
 ## Dependencies
 
@@ -31,6 +31,17 @@ compatible equipment for each module:
 - e4411b: E4411B, E4402B spectrum analyzers
 
 ## Contributing
+
+Use the following commands to create a Python 3.9.9 virtualenv using [pyenv][]
+and [pyenv-virtualenv][], install the requirements in the virtualenv named
+`applyaf`, and list the available [Invoke][] tasks.
+
+```bash
+$ pyenv virtualenv 3.9.9 applyaf
+$ pyenv activate applyaf
+$ pip install -r requirements.txt
+$ inv -l
+```
 
 ### Sample CSV and other data files
 
@@ -75,6 +86,8 @@ a pull request.  [GitHub Flow][] is summarized as:
 [nose]: http://nose.readthedocs.io/en/latest/
 [numpy]: http://www.numpy.org
 [pull request]: https://help.github.com/articles/using-pull-requests
+[pyenv]: https://github.com/pyenv/pyenv
+[pyenv-virtualenv]: https://github.com/pyenv/pyenv-virtualenv
 [pypi ver image]: http://img.shields.io/pypi/v/keysight.svg
 [pypi ver link]: https://pypi.python.org/pypi/keysight
 [python standard library]: https://docs.python.org/2/library/
