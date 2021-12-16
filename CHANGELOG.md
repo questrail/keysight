@@ -3,6 +3,10 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+## v1.2.0 - 16-Dec-21
+- Update build and PyPI distribution process.
+- Update copyright for 2022.
+- Update dependencies in requirements.txt.
 
 ## v1.1.0 - 11-Jan-18
 
