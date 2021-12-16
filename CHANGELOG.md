@@ -3,9 +3,12 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+
+## v1.2.2 - 16-Dec-21
+- Installed build and twine. Froze requirements.
+
 ## v1.2.1 - 16-Dec-21
 - Change description-file to description_file in setup.cfg.
-
 
 ## v1.2.0 - 16-Dec-21
 - Update build and PyPI distribution process.
