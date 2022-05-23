@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2013-2016 The keysight developers. All rights reserved.
+# Copyright (c) 2013-2022 The keysight developers. All rights reserved.
 # Project site: https://github.com/questrail/keysight
 # Use of this source code is governed by a MIT-style license that
 # can be found in the LICENSE.txt file for the project.
@@ -28,10 +28,7 @@ def freeze(ctx):
 @task(lint)
 def test(ctx):
     """Lint, unit test, and check setup.py"""
-    cmd = "{} {}".format(
-        "nosetests",
-        "--with-coverage --cover-erase --cover-package=keysight --cover-html")
-    run(cmd)
+    run("nose2")
 
 
 @task
