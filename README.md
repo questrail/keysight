@@ -34,11 +34,11 @@ compatible equipment for each module:
 
 Use the following commands to create a Python 3.9.9 virtualenv using [pyenv][]
 and [pyenv-virtualenv][], install the requirements in the virtualenv named
-`applyaf`, and list the available [Invoke][] tasks.
+`keysight`, and list the available [Invoke][] tasks.
 
 ```bash
-$ pyenv virtualenv 3.9.9 applyaf
-$ pyenv activate applyaf
+$ pyenv virtualenv 3.9.9 keysight
+$ pyenv activate keysight
 $ pip install -r requirements.txt
 $ inv -l
 ```
