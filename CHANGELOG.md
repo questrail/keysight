@@ -3,11 +3,20 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
-## v.1.4.1 - 23-May-22
+## v1.4.3 - 23-May-22
+- v1.4.2 wasn't released to pypi.
+- Added twine to dependencies.
+
+## v1.4.2 - 23-May-22
+- v1.4.1 wasn't released to pypi.
+- Added build to dependencies.
+- Switched to pip-chill vs pip freeze.
+
+## v1.4.1 - 23-May-22
 - Add N9038A.
 - Change from Nose to Nose2.
 
-## v.1.3.0 - 23-May-22
+## v1.3.0 - 23-May-22
 - Not released.
 
 ## v1.2.2 - 16-Dec-21
