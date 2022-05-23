@@ -3,7 +3,7 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
-## v.1.4.0 - 23-May-22
+## v.1.4.1 - 23-May-22
 - Add N9038A.
 - Change from Nose to Nose2.
 
