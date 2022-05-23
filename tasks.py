@@ -20,8 +20,8 @@ def lint(ctx):
 
 @task
 def freeze(ctx):
-    """Freeze the pip requirements"""
-    run("pip freeze -l > {req}".format(
+    """Freeze the pip requirements using pip-chill"""
+    run("pip-chill > {req}".format(
         req=Path(ROOT_DIR, 'requirements.txt')))
 
 

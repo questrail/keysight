@@ -1,5 +1,8 @@
+build==0.8.0
 flake8==4.0.1
 invoke==1.7.1
 nose2==0.11.0
 numpy==1.22.3
-Unipath==1.1
+pep8==1.7.1
+pip-chill==1.0.1
+unipath==1.1
