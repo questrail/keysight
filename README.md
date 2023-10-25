@@ -24,6 +24,7 @@ equipment.
 ## Support Keysight Equipment
 
 ### Spectrum Analyzers
+
 Below are the modules available in the keysight package and the
 compatible equipment for each module:
 
@@ -37,8 +38,11 @@ and [pyenv-virtualenv][], install the requirements in the virtualenv named
 `keysight`, and list the available [Invoke][] tasks.
 
 ```bash
-$ pyenv virtualenv 3.9.9 keysight
+$ brew install pyenv pyenv-virtualenv
+$ pyenv install 3.11.6
+$ pyenv virtualenv 3.11.6 keysight
 $ pyenv activate keysight
+$ pip install --upgrade pip
 $ pip install -r requirements.txt
 $ inv -l
 ```
@@ -54,7 +58,7 @@ please open an issue or submit a pull request to let us know.
 
 [keysight][] is developed using [Scott Chacon][]'s [GitHub Flow][]. To
 contribute, fork [keysight][], create a feature branch, and then submit
-a pull request.  [GitHub Flow][] is summarized as:
+a pull request. [GitHub Flow][] is summarized as:
 
 - Anything in the `master` branch is deployable
 - To work on something new, create a descriptively named branch off of
@@ -65,7 +69,7 @@ a pull request.  [GitHub Flow][] is summarized as:
   merging, open a [pull request][].
 - After someone else has reviewed and signed off on the feature, you can
   merge it into master.
-- Once it is merged and pushed to `master`, you can and *should* deploy
+- Once it is merged and pushed to `master`, you can and _should_ deploy
   immediately.
 
 ## Testing

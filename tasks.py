@@ -14,15 +14,17 @@ ROOT_DIR = Path(__file__).ancestor(1)
 
 @task
 def lint(ctx):
+    # pylint: disable=W0613
     """Run flake8 to lint code"""
-    run("flake8")
+    run("python3 -m flake8")
+    run("python3 -m mypy src/")
 
 
 @task
 def freeze(ctx):
+    # pylint: disable=W0613
     """Freeze the pip requirements using pip-chill"""
-    run("pip-chill > {req}".format(
-        req=Path(ROOT_DIR, 'requirements.txt')))
+    run(f"pip-chill > {Path(ROOT_DIR, 'requirements.txt')}")
 
 
 @task(lint)
