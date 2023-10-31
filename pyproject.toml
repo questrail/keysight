@@ -1,6 +1,42 @@
 [build-system]
-requires = [
-  "setuptools>=42",
-  "wheel"
-]
+requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
+[tool.pylint]
+max-line-length = 80
+disable = [
+  "E0401", # (unable-to-import)
+]
+[tool.black]
+line-length = 80
+[tool.pyright]
+include = ["src"]
+exclude = [
+  "**/node_modules",
+  "**/__pycache__",
+  "src/experimental",
+  "src/typestubs",
+]
+ignore = ["src/oldstuff"]
+defineConstant = { DEBUG = true }
+stubPath = "src/stubs"
+venv = "keysight"
+
+reportMissingImports = false
+reportMissingTypeStubs = false
+
+pythonVersion = "3.11"
+pythonPlatform = "Linux"
+
+executionEnvironments = [
+  { root = "src/web", pythonVersion = "3.5", pythonPlatform = "Windows", extraPaths = [
+    "src/service_libs",
+  ] },
+  { root = "src/sdk", pythonVersion = "3.0", extraPaths = [
+    "src/backend",
+  ] },
+  { root = "src/tests", extraPaths = [
+    "src/tests/e2e",
+    "src/sdk",
+  ] },
+  { root = "src" },
+]

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2013-2022 The keysight developers. All rights reserved.
+# Copyright (c) 2013-2023 The keysight developers. All rights reserved.
 # Project site: https://github.com/questrail/keysight
 # Use of this source code is governed by a MIT-style license that
 # can be found in the LICENSE.txt file for the project.
@@ -27,16 +27,15 @@ def freeze(ctx):
     run(f"pip-chill > {Path(ROOT_DIR, 'requirements.txt')}")
 
 
-@task(lint)
+@task()
 def test(ctx):
-    """Lint, unit test, and check setup.py"""
+    """Run unit tests"""
     run("nose2")
 
 
 @task
-def release(ctx, deploy=False, test=False, version=''):
-    """Tag release, run Travis-CI, and deploy to PyPI
-    """
+def release(ctx, deploy=False, test=False, version=""):
+    """Tag release, run Travis-CI, and deploy to PyPI"""
     if test:
         run("python3 setup.py check")
         run("python3 setup.py register sdist upload --dry-run")
