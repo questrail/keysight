@@ -3,8 +3,7 @@
 # Project site: https://github.com/questrail/keysight
 # Use of this source code is governed by a MIT-style license that
 # can be found in the LICENSE.txt file for the project.
-"""Read a CSV file saved by an N9038 EMI Test Receiver
-"""
+"""Read a CSV file saved by an N9038 EMI Test Receiver"""
 
 # Standard module imports
 import csv
@@ -21,9 +20,7 @@ def read_csv_file(filename):
     infile = open(filename, "r", newline="", encoding="utf8")
 
     with infile as csvfile:
-        data = csv.reader(
-            (line.replace("\0", "") for line in csvfile), delimiter=","
-        )
+        data = csv.reader((line.replace("\0", "") for line in csvfile), delimiter=",")
         mynext = data.__next__
         temp_row = mynext()
         header_info["data_file_type"] = temp_row[0]
@@ -119,8 +116,11 @@ def read_csv_file(filename):
 
         if num_traces == 1:
             for row in data:
-                data_array.append((float(row[0]), [float(row[1])]))
-            amplitude_format = "f8"
+                data_array.append((float(row[0]), float(row[1])))
+            data = np.array(
+                data_array,
+                dtype=[("frequency", "f8"), ("amplitude", "f8")],
+            )
         elif num_traces == 6:
             for row in data:
                 data_array.append(
@@ -136,14 +136,10 @@ def read_csv_file(filename):
                         ],
                     )
                 )
-            amplitude_format = "6f8"
-        data = np.array(
-            data_array,
-            dtype={
-                "names": ("frequency", "amplitude"),
-                "formats": ("f8", amplitude_format),
-            },
-        )
+            data = np.array(
+                data_array,
+                dtype=[("frequency", "f8"), ("amplitude", "6f8")],
+            )
     return (header_info, data)
 
 

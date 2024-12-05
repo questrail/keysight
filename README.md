@@ -39,10 +39,10 @@ and [pyenv-virtualenv][], install the requirements in the virtualenv named
 
 ```bash
 $ brew install pyenv pyenv-virtualenv
-$ pyenv install 3.11.6
-$ pyenv virtualenv 3.11.6 keysight
+$ pyenv install 3.13
+$ pyenv virtualenv 3.13 keysight
 $ pyenv activate keysight
-$ pip install --upgrade pip
+$ pip install -U pip
 $ pip install -r requirements.txt
 $ inv -l
 ```

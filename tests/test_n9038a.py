@@ -3,8 +3,7 @@
 # Project site: https://github.com/questrail/keysight
 # Use of this source code is governed by a MIT-style license that
 # can be found in the LICENSE.txt file for the project.
-"""Unit tests for keysight/n9038.py.
-"""
+"""Unit tests for keysight/n9038.py."""
 
 import unittest
 
@@ -18,7 +17,6 @@ TEST_DIR = Path(__file__).ancestor(1)
 class TestReadingCSVFileAllTraces(unittest.TestCase):
     def setUp(self):
         test_csv_file = Path(TEST_DIR, "sample_data", "N9038A_AllTraces.CSV")
-        print(test_csv_file)
         (self.header, self.data) = n9038.read_csv_file(test_csv_file)
 
     def test_header_when_reading_n9038_file(self):
@@ -102,7 +100,6 @@ class TestReadingCSVFileAllTraces(unittest.TestCase):
 class TestReadingCSVFileOneTrace(unittest.TestCase):
     def setUp(self):
         test_csv_file = Path(TEST_DIR, "sample_data", "N9038A_OneTrace.CSV")
-        print(test_csv_file)
         (self.header, self.data) = n9038.read_csv_file(test_csv_file)
 
     def test_header_when_reading_n9038_file(self):
@@ -151,7 +148,7 @@ class TestReadingCSVFileOneTrace(unittest.TestCase):
 
     def test_data_when_reading_n9038_file(self):
         self.assertEqual(self.data.shape, (1001,))
-        self.assertEqual(self.data["amplitude"].shape, (1001, 1))
+        self.assertEqual(self.data["amplitude"].shape, (1001,))
         self.assertEqual(self.data["frequency"][0], 30000000)
         self.assertEqual(self.data["amplitude"][0], 12.7683034120476)
         self.assertEqual(self.data["frequency"][1], 30270000)
