@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2013-2022 The keysight developers. All rights reserved.
+# Copyright (c) 2013-2024 The keysight developers. All rights reserved.
 # Project site: https://github.com/questrail/keysight
 # Use of this source code is governed by a MIT-style license that
 # can be found in the LICENSE.txt file for the project.
-"""Read a CSV file saved by an E4411B Spectrum Analyzer
-"""
+"""Read a CSV file saved by an E4411B Spectrum Analyzer"""
 
 # Standard module imports
 import csv
@@ -20,9 +19,7 @@ def read_csv_file(filename):
     infile = open(filename, "r", newline="", encoding="utf8")
 
     with infile as csvfile:
-        data = csv.reader(
-            (line.replace("\0", "") for line in csvfile), delimiter=","
-        )
+        data = csv.reader((line.replace("\0", "") for line in csvfile), delimiter=",")
         mynext = data.__next__
         temp_row = mynext()
         header_info["timestamp"] = temp_row[0]
@@ -66,9 +63,7 @@ def read_csv_file(filename):
             )
         elif num_traces == 2:
             for row in data:
-                data_array.append(
-                    (float(row[0]), [float(row[1]), float(row[2])])
-                )
+                data_array.append((float(row[0]), [float(row[1]), float(row[2])]))
             data = np.array(
                 data_array,
                 dtype={

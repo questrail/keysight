@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "keysight"
-version = "0.3.1"
+version = "1.5.0"
 authors = [{ name = "Matthew Rankin", email = "matthew@questrail.com" }]
 description = "Package for working with Keysight/Agilent test equipment"
 readme = "README.md"
