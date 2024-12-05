@@ -1,13 +1,45 @@
+# pyproject.toml
+
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "keysight"
+version = "0.3.1"
+authors = [{ name = "Matthew Rankin", email = "matthew@questrail.com" }]
+description = "Package for working with Keysight/Agilent test equipment"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.26.0"]
+classifiers = [
+  'Programming Language :: Python',
+  'Programming Language :: Python :: 3',
+  'Programming Language :: Python :: 3.9',
+  'Programming Language :: Python :: 3.10',
+  'Programming Language :: Python :: 3.11',
+  'Programming Language :: Python :: 3.12',
+  'Programming Language :: Python :: 3.13',
+  'License :: OSI Approved :: MIT License',
+  'Development Status :: 5 - Production/Stable',
+  'Operating System :: OS Independent',
+  'Intended Audience :: Developers',
+  'Topic :: Software Development :: Libraries :: Python Modules',
+]
+
+[project.urls]
+Homepage = "https://github.com/questrail/keysight"
+Issues = "https://github.com/questrail/keysight/issues"
+
+[tool.black]
+line-length = 80
+
 [tool.pylint]
 max-line-length = 80
 disable = [
   "E0401", # (unable-to-import)
 ]
-[tool.black]
-line-length = 80
+
 [tool.pyright]
 include = ["src"]
 exclude = [
@@ -19,12 +51,12 @@ exclude = [
 ignore = ["src/oldstuff"]
 defineConstant = { DEBUG = true }
 stubPath = "src/stubs"
-venv = "keysight"
+venv = "tektronix"
 
 reportMissingImports = false
 reportMissingTypeStubs = false
 
-pythonVersion = "3.11"
+pythonVersion = "3.6"
 pythonPlatform = "Linux"
 
 executionEnvironments = [
