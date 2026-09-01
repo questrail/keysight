@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2013-2024 The keysight developers. All rights reserved.
+# Copyright (c) 2013-2026 The keysight developers. All rights reserved.
 # Project site: https://github.com/questrail/keysight
 # Use of this source code is governed by a MIT-style license that
 # can be found in the LICENSE.txt file for the project.
@@ -7,146 +6,118 @@
 
 # Standard module imports
 import csv
-import re
+from collections.abc import Callable
+from os import PathLike
+from typing import Any
 
 # Data analysis related imports
-import numpy as np
+import numpy.typing as npt
+
+from ._tracedata import read_trace_rows
+
+# Most of an N9038 header is one field per line, written as a label followed
+# by a single value. Those lines are listed here in file order, with the
+# conversion each value needs, rather than spelled out one assignment at a
+# time: the reader then walks the table, and adding a field the receiver
+# started writing is a line here instead of a line in the middle of the parse.
+_SINGLE_VALUE_FIELDS: tuple[tuple[str, Callable[[str], Any]], ...] = (
+    ("num_points", float),
+    ("sweep_time", float),
+    ("start_freq", float),
+    ("stop_freq", float),
+    ("average_count", float),
+    ("average_type", str),
+    ("rbw", float),
+    ("rbw_filter", str),
+    ("rbw_filter_bw", str),
+    ("vbw", float),
+    ("sweep_type", str),
+    ("x_axis_scale", str),
+    ("preamp_state", str),
+    ("preamp_band", str),
+    ("trigger_source", str),
+    ("trigger_level", float),
+    ("trigger_slope", str),
+    ("trigger_delay", float),
+    ("phase_noise_optimization", str),
+    ("swept_if_gain", str),
+    ("fft_if_gain", str),
+    ("rf_coupling", str),
+    ("fft_width", float),
+    ("ext_ref", float),
+    ("input", str),
+    ("rf_calibration", str),
+    ("attenuation", float),
+    ("ref_level_offset", float),
+    ("external_gain", float),
+    ("trace_type", str),
+    ("detector", str),
+)
+
+# The three lines after the single value block hold one value per trace rather
+# than one value, so they are read together and kept as lists.
+_PER_TRACE_FIELDS: tuple[str, ...] = (
+    "trace_math",
+    "trace_math_oper1",
+    "trace_math_oper2",
+)
 
 
-def read_csv_file(filename):
-    """Read csv file into a numpy array"""
-    header_info = {}
+def read_csv_file(
+    filename: str | PathLike[str],
+) -> tuple[dict[str, Any], npt.NDArray]:
+    """Read csv file into a numpy array
 
-    infile = open(filename, "r", newline="", encoding="utf8")
+    Args:
+        filename: Path to a CSV file saved by an N9038 EMI test receiver.
 
-    with infile as csvfile:
+    Returns:
+        A tuple containing:
+            A dict of the header fields read from the top of the file.
+            A 1D numpy structured array with the fields 'frequency' and
+                'amplitude'. The 'amplitude' field is scalar for a single
+                trace file and holds one value per trace otherwise.
+
+    Raises:
+        ValueError: If the trace name row names no traces at all.
+    """
+    header_info: dict[str, Any] = {}
+
+    with open(filename, newline="", encoding="utf8") as csvfile:
+        # The receiver pads its files with NUL bytes, which csv.reader treats
+        # as an error rather than as whitespace, so strip them per line before
+        # the reader ever sees them.
         data = csv.reader((line.replace("\0", "") for line in csvfile), delimiter=",")
         mynext = data.__next__
-        temp_row = mynext()
-        header_info["data_file_type"] = temp_row[0]
-        temp_row = mynext()
+
+        header_info["data_file_type"] = mynext()[0]
+        mynext()  # Skip the blank line under the file type
         temp_row = mynext()
         header_info["instrument_ver"] = temp_row[0]
         header_info["model_num"] = temp_row[1]
-        temp_row = mynext()
-        temp_row = mynext()
-        temp_row = mynext()
-        header_info["num_points"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["sweep_time"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["start_freq"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["stop_freq"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["average_count"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["average_type"] = temp_row[1]
-        temp_row = mynext()
-        header_info["rbw"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["rbw_filter"] = temp_row[1]
-        temp_row = mynext()
-        header_info["rbw_filter_bw"] = temp_row[1]
-        temp_row = mynext()
-        header_info["vbw"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["sweep_type"] = temp_row[1]
-        temp_row = mynext()
-        header_info["x_axis_scale"] = temp_row[1]
-        temp_row = mynext()
-        header_info["preamp_state"] = temp_row[1]
-        temp_row = mynext()
-        header_info["preamp_band"] = temp_row[1]
-        temp_row = mynext()
-        header_info["trigger_source"] = temp_row[1]
-        temp_row = mynext()
-        header_info["trigger_level"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["trigger_slope"] = temp_row[1]
-        temp_row = mynext()
-        header_info["trigger_delay"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["phase_noise_optimization"] = temp_row[1]
-        temp_row = mynext()
-        header_info["swept_if_gain"] = temp_row[1]
-        temp_row = mynext()
-        header_info["fft_if_gain"] = temp_row[1]
-        temp_row = mynext()
-        header_info["rf_coupling"] = temp_row[1]
-        temp_row = mynext()
-        header_info["fft_width"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["ext_ref"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["input"] = temp_row[1]
-        temp_row = mynext()
-        header_info["rf_calibration"] = temp_row[1]
-        temp_row = mynext()
-        header_info["attenuation"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["ref_level_offset"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["external_gain"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["trace_type"] = temp_row[1]
-        temp_row = mynext()
-        header_info["detector"] = temp_row[1]
-        temp_row = mynext()
-        header_info["trace_math"] = temp_row[1 : len(temp_row)]
-        temp_row = mynext()
-        header_info["trace_math_oper1"] = temp_row[1 : len(temp_row)]
-        temp_row = mynext()
-        header_info["trace_math_oper2"] = temp_row[1 : len(temp_row)]
-        temp_row = mynext()
-        header_info["trace_math_offset"] = float(temp_row[1])
-        temp_row = mynext()
-        header_info["normalize"] = temp_row[1]
+        mynext()  # Skip the two lines between the model and the settings
+        mynext()
+
+        for key, convert in _SINGLE_VALUE_FIELDS:
+            header_info[key] = convert(mynext()[1])
+
+        for key in _PER_TRACE_FIELDS:
+            header_info[key] = mynext()[1:]
+
+        header_info["trace_math_offset"] = float(mynext()[1])
+        header_info["normalize"] = mynext()[1]
+
+        # The trace name row names one trace per column after the label, so
+        # its width is what says how many traces the file holds.
         temp_row = mynext()
         num_traces = len(temp_row) - 1
         header_info["num_traces"] = num_traces
-        header_info["trace_name"] = temp_row[1 : len(temp_row)]
-        temp_row = mynext()
-        header_info["x_axis_units"] = temp_row[1]
-        temp_row = mynext()
-        header_info["y_axis_units"] = temp_row[1]
-        temp_row = mynext()
+        header_info["trace_name"] = temp_row[1:]
 
-        data_array = []
+        header_info["x_axis_units"] = mynext()[1]
+        header_info["y_axis_units"] = mynext()[1]
+        mynext()  # Skip the DATA marker that precedes the rows
 
-        if num_traces == 1:
-            for row in data:
-                data_array.append((float(row[0]), float(row[1])))
-            data = np.array(
-                data_array,
-                dtype=[("frequency", "f8"), ("amplitude", "f8")],
-            )
-        elif num_traces == 6:
-            for row in data:
-                data_array.append(
-                    (
-                        float(row[0]),
-                        [
-                            float(row[1]),
-                            float(row[2]),
-                            float(row[3]),
-                            float(row[4]),
-                            float(row[5]),
-                            float(row[6]),
-                        ],
-                    )
-                )
-            data = np.array(
-                data_array,
-                dtype=[("frequency", "f8"), ("amplitude", "6f8")],
-            )
-    return (header_info, data)
+        data_array = read_trace_rows(data, num_traces)
 
-
-def _get_ref(s):
-    """Convert given string into the reference level"""
-    match = re.search(r"[\d.]+", s)
-    if match:
-        return float(match.group())
-    else:
-        return ""
+    return (header_info, data_array)

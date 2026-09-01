@@ -1,0 +1,189 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  # The release workflow calls this one, so that a tag cannot publish what CI
+  # has not checked.
+  workflow_call:
+  workflow_dispatch:
+
+# The group is a literal rather than github.workflow, which resolves to the
+# calling workflow's name when this one is reused: sharing a group with the
+# caller would leave the called run waiting for a slot the caller is holding.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# The repository default is write; nothing here needs more than to read the
+# code it checks.
+permissions:
+  contents: read
+
+# Each job installs its environment once, deliberately, in the step that says
+# so. Without this every `uv run` below would re-resolve and reinstall the
+# project on top of that. In the floor job it would do worse than waste time:
+# a re-sync there resolves at the default resolution and would quietly undo the
+# lowest-direct install the job exists to test.
+env:
+  UV_NO_SYNC: "1"
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    # These jobs finish in under twenty seconds; the GitHub default is six
+    # hours. Actions is free on a public repository using standard runners, so
+    # a hang costs nothing to run. What it costs is a release. release.yml
+    # waits on this workflow, and a tag starts it under a concurrency group no
+    # later push ever touches: on master a stalled job is cancelled by the next
+    # push, since cancel-in-progress is true, but on a tag nothing arrives to
+    # cancel it, and the publish sits behind it for the full six hours.
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13", "3.14"]
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # checkout otherwise writes the GITHUB_TOKEN into .git/config, where
+          # every later step, and every action those steps call, can read it.
+          # Nothing in this workflow talks to the remote over git, and the
+          # release workflow publishes on this one's verdict, so the fewer
+          # steps that can reach a credential the better.
+          persist-credentials: false
+
+      - name: Install uv and Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install the project and its dependencies
+        run: uv sync --locked
+
+      - name: Lint
+        run: uv run ruff check
+
+      - name: Check formatting
+        run: uv run ruff format --check
+
+      - name: Type check
+        run: uv run pyright
+
+      - name: Test
+        run: uv run pytest --cov --cov-report=lcov:coverage.lcov --cov-report=term
+
+      # Skipped when the release workflow calls this one: github.ref is the
+      # caller's, so a tag run would re-report the coverage the same commit
+      # already reported when it landed on master.
+      - name: Report coverage to Coveralls
+        if: matrix.python-version == '3.13' && !startsWith(github.ref, 'refs/tags/')
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
+        with:
+          file: coverage.lcov
+          format: lcov
+
+  floor:
+    name: Lowest supported dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # checkout otherwise writes the GITHUB_TOKEN into .git/config, where
+          # every later step, and every action those steps call, can read it.
+          # Nothing in this workflow talks to the remote over git, and the
+          # release workflow publishes on this one's verdict, so the fewer
+          # steps that can reach a credential the better.
+          persist-credentials: false
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          # The floor is a claim about numpy, not about the interpreter, and
+          # numpy ships no cp314 wheels below 2.3.2, so resolving to the
+          # numpy>=2.2.0 floor on 3.14 would compile it from source. Check it
+          # on the oldest interpreter the project supports instead.
+          python-version: "3.12"
+          # Which puts this job on the same runner, interpreter, and default
+          # cache key as the 3.12 leg of the matrix, so the two raced to save
+          # one cache and every run carried a "Failed to save: Unable to
+          # reserve cache" warning. They install deliberately different numpy
+          # versions, so they want separate keys rather than one they take
+          # turns overwriting.
+          cache-suffix: lowest-direct
+
+      # The version floors in pyproject.toml are a promise to anyone installing
+      # keysight alongside something else that holds numpy back, and the test
+      # job never tests them: it installs whatever uv.lock pins, which is the
+      # newest numpy rather than the oldest allowed one. --resolution
+      # lowest-direct installs the oldest instead, so that a change which
+      # quietly starts needing a newer numpy fails here rather than in a bug
+      # report. It re-resolves instead of reading uv.lock, and rewrites the
+      # lock in passing, which is why --locked is absent and why this belongs
+      # on a throwaway checkout.
+      - name: Install the lowest dependency versions pyproject.toml allows
+        run: uv sync --resolution lowest-direct
+
+      - name: Report the resolved numpy version
+        run: uv run python -c "import numpy; print('numpy', numpy.__version__)"
+
+      # Only the suite runs here. lowest-direct pins the dev tools to their
+      # floors too, and an older ruff formats differently, so linting at this
+      # resolution would report on the tooling rather than on the floor.
+      - name: Test
+        run: uv run pytest
+
+  workflows:
+    name: Workflows
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          # Restore the cache but never save it. This job installs exactly
+          # what the 3.13 leg of the matrix installs, from the same lock on
+          # the same runner, so setup-uv computes the same cache key for both
+          # and the two raced to reserve it: one saved, and the other logged
+          # "Failed to save: Unable to reserve cache" on every run. A
+          # cache-suffix would end the race the way the floor job's does, but
+          # that job installs deliberately different versions and so wants an
+          # entry of its own, while this one would only be storing a second
+          # copy of an identical environment. If it happens to run first there
+          # is nothing to restore and it downloads instead.
+          save-cache: false
+          python-version: "3.13"
+
+      - name: Install the project and its dependencies
+        run: uv sync --locked
+
+      # Everything under src/ is linted on every push. The workflows, which
+      # are the part of this repository that can mint a PyPI credential, were
+      # read by eye alone. zizmor is what found the GITHUB_TOKEN that the
+      # checkouts used to leave in .git/config for every later step, and it is
+      # here so that the next finding of that kind does not depend on someone
+      # noticing it.
+      #
+      # A job of its own rather than a step gated on one leg of the matrix the
+      # way the Coveralls step is: that gate would mean dropping 3.13 from the
+      # matrix silently stops auditing the workflows, and a security check
+      # that leaves quietly is worse than one that was never added.
+      - name: Audit the workflows
+        run: uv run zizmor .github/workflows

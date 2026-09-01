@@ -1,0 +1,196 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+# A publish is not something to cancel part way through, so a second push of
+# the same tag queues behind the first rather than interrupting it. The group
+# is deliberately unlike the one in ci.yml, which this workflow calls: matching
+# groups would leave the called run waiting on a slot this one is holding.
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+# Every action below is pinned to a commit SHA rather than to a tag, because a
+# tag is mutable and this job can mint a PyPI credential. The version each SHA
+# stood for when it was pinned is in the comment beside it, and dependabot.yml
+# is what moves them; a pin with nothing updating it is a decision to stay on
+# one commit forever. ci.yml is pinned on the same terms: it is not privileged
+# itself, but this workflow now publishes on its verdict, so an action that
+# could turn a red run green sits inside the same boundary.
+jobs:
+  # Publishing waits on the whole matrix and on the dependency floor job. The
+  # release used to recheck only what it could reach itself, on 3.13 alone,
+  # while `git push --follow-tags` started this workflow and CI at the same
+  # time: nothing stopped an upload that went out while 3.14 was still running,
+  # or already red.
+  #
+  # `$/` rather than `./`, which is what GitHub now recommends for a workflow
+  # in the same repository. `./` resolves against the runner's filesystem, so
+  # in the general case a step that had already cloned something could stand in
+  # front of the file being called; `$/` resolves against the repository at
+  # this commit and counts as a pinned reference under GitHub's own policy.
+  # Nothing here can exploit the difference, since a job level `uses` is read
+  # before any step of that job runs, but this workflow publishes on this call's
+  # verdict, so it is worth pinning for the same reason the actions are.
+  ci:
+    name: CI
+    uses: $/.github/workflows/ci.yml
+    permissions:
+      contents: read
+
+  release:
+    name: Build and publish to PyPI
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # Trusted publishing mints a short lived token from this OIDC identity, so
+    # there is no PyPI API token to store, rotate, or leak. contents: write is
+    # what lets the last step create the GitHub release.
+    environment:
+      name: pypi
+      url: https://pypi.org/p/keysight
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # merge-base needs real history, and the default shallow checkout
+          # has none.
+          fetch-depth: 0
+          # Without this, checkout leaves the GITHUB_TOKEN in .git/config for
+          # every later step, and every action those steps call, to read. In
+          # this job that token carries contents: write and sits beside a step
+          # that mints a PyPI credential. Nothing here needs it: the tag check
+          # below only reads refs the fetch above already brought down, and
+          # `gh release create` authenticates through GH_TOKEN rather than
+          # through git.
+          persist-credentials: false
+
+      # `just release` refuses to cut from anywhere but master, but that is a
+      # local courtesy; this workflow trusts any v* tag that reaches it. A tag
+      # is just a pointer, and one placed on a branch or on a commit that never
+      # landed would otherwise publish whatever it points at.
+      - name: Verify the tag is on master
+        run: |
+          if ! git rev-parse -q --verify refs/remotes/origin/master >/dev/null; then
+            echo "origin/master was not fetched; cannot tell where the tag sits" >&2
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/master; then
+            echo "$GITHUB_REF_NAME points at a commit that is not on master" >&2
+            exit 1
+          fi
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          # Off, not `auto`, though auto would also decline to cache here:
+          # setup-uv stopped caching on tag pushes in v10 because a poisoned
+          # cache in a job like this one reaches further than in an ordinary
+          # build, and this job can mint a PyPI credential. Saying it outright
+          # keeps the answer from changing if that heuristic ever does. Little
+          # is lost: since the lint and test steps moved to the CI job, nothing
+          # here syncs the dev environment, and only the build backend and the
+          # wheel under test get downloaded.
+          enable-cache: false
+          python-version: "3.13"
+
+      # No `uv sync` precedes this. Reading the version needs no environment,
+      # the build makes its own, and the smoke test below installs the wheel
+      # into an isolated one. The lock file is checked by the `uv sync
+      # --locked` in the CI job this release already waits on.
+      - name: Verify the tag matches the packaged version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(uv version --short)"
+          if [ "$tag" != "$version" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match version $version in pyproject.toml" >&2
+            exit 1
+          fi
+
+      - name: Build the distributions
+        run: uv build
+
+      # Every check so far runs against the source tree, so a packaging mistake
+      # that leaves something out of the wheel passes all of them. The script
+      # installs the wheel that is about to be uploaded into an environment
+      # with no path to src/ and exercises it there. `just build` runs the same
+      # script, so the local build and this one check the same things.
+      - name: Smoke test the built wheel
+        run: |
+          uv run --isolated --no-project --with dist/*.whl \
+            python scripts/smoke_test_wheel.py "${GITHUB_REF_NAME#v}"
+
+      # Done before the upload, since a CHANGELOG that has no section for this
+      # version should stop the release while stopping it is still possible.
+      - name: Collect the release notes from the CHANGELOG
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}" python3 - > "${RUNNER_TEMP}/release-notes.md" <<'PY'
+          import os
+          import pathlib
+          import re
+
+          version = os.environ["VERSION"]
+          changelog = pathlib.Path("CHANGELOG.md").read_text()
+
+          # The section runs from its heading to the next heading, or to the
+          # link reference definitions at the foot of the file.
+          match = re.search(
+              rf"^## v{re.escape(version)} - \d{{4}}-\d{{2}}-\d{{2}}\s*\n(.*?)(?=^## |^\[[^\]]+\]: |\Z)",
+              changelog,
+              re.S | re.M,
+          )
+          if match is None:
+              raise SystemExit(f"CHANGELOG.md has no section for v{version}")
+          notes = match.group(1).strip()
+          if not notes:
+              raise SystemExit(f"The CHANGELOG.md section for v{version} is empty")
+
+          # Carry the definitions along so that a [#12][] style reference in the
+          # section still resolves once GitHub renders it on its own. Unused
+          # ones render as nothing.
+          definitions = re.findall(r"^\[[^\]]+\]:.*$", changelog, re.M)
+          print("\n\n".join([notes, *(["\n".join(definitions)] if definitions else [])]))
+          PY
+
+      # `uv publish` uploads attestations but does not create them, so every
+      # release before this one went out unattested: trusted publishing proved
+      # who uploaded, and nothing stood behind what was uploaded or where it
+      # was built. This action signs a PEP 740 attestation for each
+      # distribution against the same OIDC identity and uploads the two
+      # together, which is on by default under trusted publishing and is the
+      # whole reason it stands here in place of `uv publish`.
+      #
+      # skip-existing replaces the `--check-url` the uv invocation carried, and
+      # is here for the same reason: a run that uploaded the sdist and then
+      # lost the wheel could not otherwise be retried, since the second attempt
+      # fails on the file PyPI already has and a version number can never be
+      # reused. Upstream suggests reserving it for TestPyPI, but a retry that
+      # would otherwise strand a version number is the case it exists for.
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        with:
+          skip-existing: true
+
+      # The assets are named rather than globbed as dist/*, which the step
+      # above has now joined with a .publish.attestation beside each
+      # distribution. PyPI serves those next to the files they attest, so a
+      # second copy here would be noise with nothing to read it.
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file "${RUNNER_TEMP}/release-notes.md" \
+            --verify-tag \
+            dist/*.tar.gz dist/*.whl

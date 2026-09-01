@@ -1,26 +1,23 @@
 # pyproject.toml
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "keysight"
 version = "1.5.0"
-authors = [{ name = "Matthew Rankin", email = "matthew@questrail.com" }]
 description = "Package for working with Keysight/Agilent test equipment"
 readme = "README.md"
-requires-python = ">=3.9"
-dependencies = ["numpy>=1.26.0"]
+license = "MIT"
+license-files = ["LICENSE.txt"]
+authors = [
+  { name = "Matthew Rankin", email = "369937+matthewrankin@users.noreply.github.com" },
+]
+requires-python = ">=3.12"
+dependencies = ["numpy>=2.2.0"]
 classifiers = [
   'Programming Language :: Python',
   'Programming Language :: Python :: 3',
-  'Programming Language :: Python :: 3.9',
-  'Programming Language :: Python :: 3.10',
-  'Programming Language :: Python :: 3.11',
   'Programming Language :: Python :: 3.12',
   'Programming Language :: Python :: 3.13',
-  'License :: OSI Approved :: MIT License',
+  'Programming Language :: Python :: 3.14',
   'Development Status :: 5 - Production/Stable',
   'Operating System :: OS Independent',
   'Intended Audience :: Developers',
@@ -31,44 +28,62 @@ classifiers = [
 Homepage = "https://github.com/questrail/keysight"
 Issues = "https://github.com/questrail/keysight/issues"
 
-[tool.black]
-line-length = 80
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.pylint]
-max-line-length = 80
-disable = [
-  "E0401", # (unable-to-import)
+[tool.hatch.build.targets.wheel]
+packages = ["src/keysight"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+# Select rules explicitly rather than relying on ruff's defaults, so that the
+# rule set is a deliberate choice. The ruff version itself is pinned by uv.lock.
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "UP",  # pyupgrade
+  "B",   # flake8-bugbear
+  "SIM", # flake8-simplify
+  "EXE", # flake8-executable
+  "PL",  # pylint
+  "PT",  # flake8-pytest-style
+  "RUF", # ruff's own rules
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--strict-markers", "--strict-config"]
+
+[tool.coverage.run]
+source = ["keysight"]
+branch = true
+# Coveralls maps the report onto the repository, and absolute paths from a
+# runner's checkout directory are not something it can map.
+relative_files = true
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
+# The suite covers every statement and branch. A floor set anywhere below that
+# would let coverage fall without anything noticing; set here, uncovered code
+# has to arrive with either a test or a deliberate edit to this line.
+fail_under = 100
 
 [tool.pyright]
-include = ["src"]
-exclude = [
-  "**/node_modules",
-  "**/__pycache__",
-  "src/experimental",
-  "src/typestubs",
-]
-ignore = ["src/oldstuff"]
-defineConstant = { DEBUG = true }
-stubPath = "src/stubs"
-venv = "tektronix"
+venvPath = "."
+venv = ".venv"
+include = ["src", "tests", "scripts"]
 
-reportMissingImports = false
-reportMissingTypeStubs = false
-
-pythonVersion = "3.6"
-pythonPlatform = "Linux"
-
-executionEnvironments = [
-  { root = "src/web", pythonVersion = "3.5", pythonPlatform = "Windows", extraPaths = [
-    "src/service_libs",
-  ] },
-  { root = "src/sdk", pythonVersion = "3.0", extraPaths = [
-    "src/backend",
-  ] },
-  { root = "src/tests", extraPaths = [
-    "src/tests/e2e",
-    "src/sdk",
-  ] },
-  { root = "src" },
+[dependency-groups]
+dev = [
+    "pyright>=1.1.411",
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.5",
+    "zizmor>=1.30.0",
 ]

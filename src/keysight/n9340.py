@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2013-2024 The keysight developers. All rights reserved.
+# Copyright (c) 2013-2026 The keysight developers. All rights reserved.
 # Project site: https://github.com/questrail/keysight
 # Use of this source code is governed by a MIT-style license that
 # can be found in the LICENSE.txt file for the project.
@@ -8,33 +7,36 @@
 # Standard module imports
 import csv
 import re
-import sys
+from os import PathLike
+from typing import Any
 
 # Data analysis related imports
 import numpy as np
+import numpy.typing as npt
 
 
-def read_csv_file(filename):
-    """Read csv file into a numpy array"""
-    n9340_header = {}
-    # Make this Py2.x and Py3.x compatible
-    if sys.version_info[0] < 3:
-        infile = open(filename, "rb")
-    else:
-        infile = open(filename, "r", newline="", encoding="utf8")
+def read_csv_file(
+    filename: str | PathLike[str],
+) -> tuple[dict[str, Any], npt.NDArray]:
+    """Read csv file into a numpy array
 
-    with infile as csvfile:
-        # Make this Py2.x and Py3.x compatible
-        if sys.version_info[0] < 3:
-            data = csv.reader(
-                (line.replace(b"\0", b"") for line in csvfile), delimiter=b","
-            )
-            mynext = data.next
-        else:
-            data = csv.reader(
-                (line.replace("\0", "") for line in csvfile), delimiter=","
-            )
-            mynext = data.__next__
+    Args:
+        filename: Path to a CSV file saved by an N9340 spectrum analyzer.
+
+    Returns:
+        A tuple containing:
+            A dict of the header fields read from the top of the file.
+            A 1D numpy structured array with the fields 'frequency' and
+                'amplitude_db'.
+    """
+    n9340_header: dict[str, Any] = {}
+
+    with open(filename, newline="", encoding="utf8") as csvfile:
+        # The analyzer pads its files with NUL bytes, which csv.reader treats
+        # as an error rather than as whitespace, so strip them per line before
+        # the reader ever sees them.
+        data = csv.reader((line.replace("\0", "") for line in csvfile), delimiter=",")
+        mynext = data.__next__
         n9340_header["file"] = mynext()[1]
         n9340_header["system_parameter"] = mynext()[1]
         temp_row = mynext()
@@ -77,10 +79,7 @@ def read_csv_file(filename):
         temp_row = mynext()
         n9340_header["frequency"] = temp_row[0]
 
-        n9340_array = []
-
-        for row in data:
-            n9340_array.append((float(row[0]), float(row[1])))
+        n9340_array = [(float(row[0]), float(row[1])) for row in data]
 
         n9340_data = np.array(
             n9340_array,
@@ -90,8 +89,20 @@ def read_csv_file(filename):
     return (n9340_header, n9340_data)
 
 
-def _get_ref(s):
-    """Convert given string into the reference level"""
+def _get_ref(s: str) -> float | str:
+    """Convert given string into the reference level
+
+    The analyzer writes the reference level either bare or with its units
+    appended, e.g. "0.00" or "106.00dBuV", so pull the leading number back out
+    of whichever form the file happens to use.
+
+    Args:
+        s: The reference level field as it appears in the file.
+
+    Returns:
+        The reference level as a float, or an empty string if the field holds
+        no number at all.
+    """
     match = re.search(r"[\d.]+", s)
     if match:
         return float(match.group())
