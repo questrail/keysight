@@ -69,11 +69,12 @@ out:
 lock:
   uv lock
 
-# Check, test, and build the distributions that CI will publish
+# Depends on cov rather than on test because CI runs pytest under coverage
+# and fails below the fail_under floor in pyproject.toml. Running the bare
+# suite here left the gate that gets a push rejected as one this recipe never
+# applied.
 #
-# Depends on cov rather than on test because CI runs pytest under coverage and
-# fails below the fail_under floor in pyproject.toml. Running the bare suite
-# here left the gate that gets a push rejected as one this recipe never applied.
+# Check, test, and build the distributions that CI will publish
 [group('deploy')]
 build: lint cov
   #!/usr/bin/env bash
@@ -112,11 +113,11 @@ release-check:
   fi
   echo "Ready to release from $(uv version --short)."
 
-# Cut a release
-#
 # Depends on cov rather than on test for the same reason build does: a tag is
 # pushed on the strength of what these recipes checked, and coverage is one of
 # the gates CI applies before it will publish that tag.
+#
+# Cut a release
 [group('deploy')]
 release: release-check lint cov
   #!/usr/bin/env bash
@@ -165,9 +166,10 @@ release: release-check lint cov
   echo
   echo "    git push --follow-tags"
 
-# Print the CHANGELOG entries sitting under Unreleased. Both release-check and
-# release read this, one to refuse an empty section and the other to show what
-# is about to ship, so it is written once here.
+# Both release-check and release read this, one to refuse an empty section and
+# the other to show what is about to ship, so it is written once here.
+#
+# Print the CHANGELOG entries sitting under Unreleased
 [private]
 unreleased:
   #!/usr/bin/env python3
