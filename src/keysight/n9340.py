@@ -106,5 +106,4 @@ def _get_ref(s: str) -> float | str:
     match = re.search(r"[\d.]+", s)
     if match:
         return float(match.group())
-    else:
-        return ""
+    return ""

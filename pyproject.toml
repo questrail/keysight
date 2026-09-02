@@ -52,12 +52,37 @@ select = [
   "EXE", # flake8-executable
   "PL",  # pylint
   "PT",  # flake8-pytest-style
+  "NPY", # numpy-specific rules
+  "C4",  # flake8-comprehensions
+  "FURB",# refurb
+  "PERF",# perflint
+  "RET", # flake8-return
+  "ARG", # flake8-unused-arguments
+  "PIE", # flake8-pie
+  "ISC", # flake8-implicit-str-concat
+  "RSE", # flake8-raise
+  "A",   # flake8-builtins
+  "N",   # pep8-naming
+  "G",   # flake8-logging-format
+  "LOG", # flake8-logging
+  "Q",   # flake8-quotes
+  "S",   # flake8-bandit
   "RUF", # ruff's own rules
 ]
+
+[tool.ruff.lint.per-file-ignores]
+# S101 objects to `assert`, which is how a pytest suite states what it checks.
+"tests/**" = ["S101"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["--strict-markers", "--strict-config"]
+# A numpy or stdlib deprecation is how this breaks across the 3.12 - 3.14 the
+# classifiers claim. Left as a warning it scrolls past in a green run; as an
+# error it fails the run that introduced it.
+filterwarnings = ["error"]
+# An xfail that starts passing is a test no longer checking what it says.
+xfail_strict = true
 
 [tool.coverage.run]
 source = ["keysight"]
@@ -68,7 +93,9 @@ relative_files = true
 
 [tool.coverage.report]
 show_missing = true
-exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
+# exclude_also adds to coverage's built-in exclusions; exclude_lines would
+# replace them, which means restating the pragma pattern to keep it working.
+exclude_also = ["if TYPE_CHECKING:"]
 # The suite covers every statement and branch. A floor set anywhere below that
 # would let coverage fall without anything noticing; set here, uncovered code
 # has to arrive with either a test or a deliberate edit to this line.
