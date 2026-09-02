@@ -13,13 +13,13 @@ loc:
 doc term:
   uv run python -m pydoc {{term}}
 
-# Lint and format code using ruff, applying any fixes
+# Lint and format code and apply fixes
 [group('test')]
 fix:
   uv run ruff check --fix
   uv run ruff format
 
-# Check lint, formatting, types, and workflows without modifying any files
+# Lint and format code without applying fixes
 [group('test')]
 lint:
   uv run ruff check
