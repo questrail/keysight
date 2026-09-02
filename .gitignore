@@ -186,3 +186,7 @@ pyrightconfig.json
 # leaves nothing on disk to leak. Nothing here needs the file any more, but it
 # stays ignored so that a leftover copy cannot be committed by accident.
 .pypirc
+
+# macOS Finder metadata. Ignored globally on the author machine, which is why
+# it never showed up here, but the sdist is built from the working tree.
+.DS_Store

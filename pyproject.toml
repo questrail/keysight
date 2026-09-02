@@ -28,12 +28,35 @@ classifiers = [
 Homepage = "https://github.com/questrail/keysight"
 Issues = "https://github.com/questrail/keysight/issues"
 
+# Pinned to a minor range. Build backends are not part of uv.lock, so an
+# unpinned backend is resolved fresh on every build, including the release run
+# that produces the attested distributions; a range keeps that one input to
+# the published wheel from moving on its own.
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.12.9,<0.13.0"]
+build-backend = "uv_build"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/keysight"]
+# uv_build ships a minimal source distribution by default: the module, README,
+# LICENSE, and pyproject.toml. hatchling had included everything git tracks, so
+# these restore what the sdist carried before the backend changed, rather than
+# quietly narrowing what is published. The tests and their sample data are the
+# ones worth keeping: they are what lets anyone with the sdist alone check that
+# the readers still parse the instrument files.
+[tool.uv.build-backend]
+source-include = [
+  ".github/**",
+  ".gitignore",
+  ".python-version",
+  "CHANGELOG.md",
+  "Justfile",
+  "scripts/**",
+  "tests/**",
+  "uv.lock",
+]
+# source-include is filesystem globs, not git's view of the tree, so anything
+# sitting in those directories ships whether or not git tracks it. hatchling
+# had built from what git tracks and left these out on its own.
+source-exclude = ["**/.DS_Store"]
 
 [tool.ruff]
 line-length = 88

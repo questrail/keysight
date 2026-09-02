@@ -4,6 +4,35 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+### Changed
+
+- Build with [uv_build][] rather than hatchling. hatchling arrived in v1.5.0 as
+  the replacement for setuptools, months before uv had a build backend of its
+  own; uv already manages and locks this project, so the backend is one fewer
+  tool in the build. The `[tool.hatch.build.targets.wheel]` stanza it needed is
+  gone, since `src/keysight` is what uv_build looks for by default. The wheel is
+  file for file what hatchling produced.
+- Pin the build backend to a minor range. `[build-system] requires` is not part
+  of `uv.lock`, so an unpinned backend was resolved fresh on every build,
+  including the release run that produces the attested distributions. It was the
+  one input to the published wheel that nothing held still, next to actions
+  pinned to commit SHAs and dependencies installed with `uv sync --locked`.
+- Spell out the source distribution contents. uv_build ships the module, README,
+  LICENSE, and `pyproject.toml` by default, where hatchling had included
+  everything git tracks, so `source-include` restores the rest rather than
+  letting a backend swap quietly narrow what is published. The tests and their
+  sample data matter most: they are what lets anyone holding only the sdist
+  check that the readers still parse the instrument files. `source-exclude`
+  drops `.DS_Store`, which hatchling had never included because it built from
+  what git tracks, and which `source-include` globs would otherwise pick up off
+  the working tree.
+
+### Fixed
+
+- Ignore `.DS_Store`. It had only ever been ignored through a global git config
+  on the author machine, so nothing stopped a contributor from committing one,
+  and the source distribution is built from the working tree.
+
 ## v2.0.0 - 2026-09-02
 
 ### Added
@@ -262,5 +291,6 @@ This file contains all notable changes to the [keysight][] project.
 [ruff]: https://docs.astral.sh/ruff/
 [trusted publishing]: https://docs.pypi.org/trusted-publishers/
 [unipath]: https://github.com/mikeorr/Unipath
+[uv_build]: https://docs.astral.sh/uv/concepts/build-backend/
 [uv]: https://docs.astral.sh/uv/
 [zizmor]: https://docs.zizmor.sh/
