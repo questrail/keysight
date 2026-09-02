@@ -188,5 +188,6 @@ pyrightconfig.json
 .pypirc
 
 # macOS Finder metadata. Ignored globally on the author machine, which is why
-# it never showed up here, but the sdist is built from the working tree.
+# it never showed up here; one committed under src/ would be built into both
+# distributions.
 .DS_Store

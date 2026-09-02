@@ -17,21 +17,17 @@ This file contains all notable changes to the [keysight][] project.
   including the release run that produces the attested distributions. It was the
   one input to the published wheel that nothing held still, next to actions
   pinned to commit SHAs and dependencies installed with `uv sync --locked`.
-- Spell out the source distribution contents. uv_build ships the module, README,
-  LICENSE, and `pyproject.toml` by default, where hatchling had included
-  everything git tracks, so `source-include` restores the rest rather than
-  letting a backend swap quietly narrow what is published. The tests and their
-  sample data matter most: they are what lets anyone holding only the sdist
-  check that the readers still parse the instrument files. `source-exclude`
-  drops `.DS_Store`, which hatchling had never included because it built from
-  what git tracks, and which `source-include` globs would otherwise pick up off
-  the working tree.
+- Ship a minimal source distribution. uv_build includes the module, README,
+  LICENSE, and `pyproject.toml`, where hatchling had included everything git
+  tracks. The wheel is unchanged; what the sdist no longer carries is the test
+  suite, its sample data, and `uv.lock`, so it is no longer enough on its own to
+  check that the readers still parse the instrument files.
 
 ### Fixed
 
 - Ignore `.DS_Store`. It had only ever been ignored through a global git config
-  on the author machine, so nothing stopped a contributor from committing one,
-  and the source distribution is built from the working tree.
+  on the author machine, so nothing stopped a contributor from committing one
+  into `src/`, where the build would carry it into both distributions.
 
 ## v2.0.0 - 2026-09-02
 
