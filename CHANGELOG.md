@@ -4,6 +4,8 @@ This file contains all notable changes to the [keysight][] project.
 
 ## Unreleased
 
+## v2.0.0 - 2026-09-02
+
 ### Added
 
 - Publish from GitHub Actions using [trusted publishing][]. There is no PyPI
