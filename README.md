@@ -117,7 +117,7 @@ second, unpinned copy on the path for an editor to find, and ruff releases
 change how code is formatted: the editor would then reformat code that
 `ruff format --check` rejects on the next run.
 
-#### Releasing to PyPI
+### Releasing to PyPI
 
 `just release` cuts the release. It first checks that a release is possible at
 all, then lints, type checks, and tests, then shows the entries waiting under

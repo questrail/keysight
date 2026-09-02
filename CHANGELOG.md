@@ -49,6 +49,15 @@ This file contains all notable changes to the [keysight][] project.
   anyone type checking against this package.
 - Report coverage to [Coveralls][coveralls link] from CI, with the suite
   failing under 100% statement and branch coverage.
+- `just release-check`, which runs the refusals `just release` opens with and
+  stops there: a dirty working tree, a branch other than `master`, a `master`
+  behind its upstream, an empty `Unreleased` section. Asking whether a release
+  can be cut no longer means starting one and reading the error.
+- `just doc`, which searches pydoc for a given term.
+- Ignore `.pypirc`. A copy holding a PyPI username and password predates the
+  move to trusted publishing, which mints a short lived credential per
+  release and leaves nothing on disk; nothing here needs the file, and
+  ignoring it keeps a leftover from being committed by accident.
 
 ### Changed
 
@@ -74,6 +83,20 @@ This file contains all notable changes to the [keysight][] project.
 - Replace the N9038 header parse with a table of fields in file order. It had
   been 60 lines of `mynext()` calls whose alignment with the file was
   impossible to check by eye.
+- `just build` and `just release` depend on `cov` rather than `test`. CI runs
+  pytest under coverage and fails below the `fail_under` floor in
+  `pyproject.toml`, so the bare suite these recipes ran left that gate as one
+  they never applied: a tree that passed locally could still be rejected on
+  push, and `just release` could tag a version CI would then refuse to publish.
+- The CHANGELOG parser that reads the `Unreleased` section moved out of
+  `release` and into a private `unreleased` recipe. `release-check` and
+  `release` both read it, one to refuse an empty section and the other to show
+  what is about to ship, so it is written once rather than inlined in each.
+- Bring the `LICENSE.txt` copyright range up to 2026. It had stopped at
+  2022, years behind the work in the file.
+- Promote "Releasing to PyPI" in the README from a fourth level heading to a
+  third. It had been nested under "Development Setup on macOS", which made
+  releasing look like a macOS specific topic.
 
 ### Fixed
 
@@ -89,6 +112,10 @@ This file contains all notable changes to the [keysight][] project.
 
 - The unused, undocumented `_get_ref()` copy in the `n9038` module, which was
   a duplicate of the `n9340` one and was never called.
+- `AUTHORS.md`, and the "(see AUTHORS.md file)" clause in `LICENSE.txt` that
+  pointed at it. It listed one author with "None at this time" under both
+  Maintainers and Contributors, which `pyproject.toml` already records in
+  its `authors` field.
 
 ## v1.5.0 - 2024-12-05
 

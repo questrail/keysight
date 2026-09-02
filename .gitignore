@@ -180,3 +180,9 @@ poetry.toml
 pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+
+# A .pypirc holding a PyPI username and password predates this project's move
+# to trusted publishing, which mints a short lived credential per release and
+# leaves nothing on disk to leak. Nothing here needs the file any more, but it
+# stays ignored so that a leftover copy cannot be committed by accident.
+.pypirc

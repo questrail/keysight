@@ -8,6 +8,11 @@
 loc:
   scc --remap-unknown "-*- Justfile -*-":"justfile"
 
+# Search pydoc for given term
+[group('general')]
+doc term:
+  uv run python -m pydoc {{term}}
+
 # Lint and format code using ruff, applying any fixes
 [group('test')]
 fix:
@@ -65,8 +70,12 @@ lock:
   uv lock
 
 # Check, test, and build the distributions that CI will publish
+#
+# Depends on cov rather than on test because CI runs pytest under coverage and
+# fails below the fail_under floor in pyproject.toml. Running the bare suite
+# here left the gate that gets a push rejected as one this recipe never applied.
 [group('deploy')]
-build: lint test
+build: lint cov
   #!/usr/bin/env bash
   set -euo pipefail
   uv build --clear
@@ -81,9 +90,9 @@ build: lint test
   uv run --isolated --no-project --with dist/*.whl \
     python scripts/smoke_test_wheel.py "$(uv version --short)"
 
-# Cut a release
+# Confirm a release can be cut from the tree as it stands
 [group('deploy')]
-release:
+release-check:
   #!/usr/bin/env bash
   set -euo pipefail
   if [ -n "$(git status --porcelain)" ]; then
@@ -98,24 +107,24 @@ release:
   if [ "$behind" != 0 ]; then
     echo "master is ${behind} commit(s) behind its upstream; pull first" >&2; exit 1
   fi
-  unreleased="$(python3 - <<'PY'
-  import pathlib, re
-  m = re.search(
-      r"^## Unreleased\s*\n(.*?)(?=^## v)",
-      pathlib.Path("CHANGELOG.md").read_text(),
-      re.S | re.M,
-  )
-  print((m.group(1).strip() if m else ""))
-  PY
-  )"
-  if [ -z "$unreleased" ]; then
+  if [ -z "$({{just_executable()}} unreleased)" ]; then
     echo "CHANGELOG.md has no entries under Unreleased" >&2; exit 1
   fi
-  # The checks come after the refusals, so that a dirty tree or an empty
-  # Unreleased section is turned away immediately instead of after a full
-  # lint and test run.
-  {{just_executable()}} lint
-  {{just_executable()}} test
+  echo "Ready to release from $(uv version --short)."
+
+# Cut a release
+#
+# Depends on cov rather than on test for the same reason build does: a tag is
+# pushed on the strength of what these recipes checked, and coverage is one of
+# the gates CI applies before it will publish that tag.
+[group('deploy')]
+release: release-check lint cov
+  #!/usr/bin/env bash
+  set -euo pipefail
+  # release-check runs first, as a dependency, so that a dirty tree or an
+  # empty Unreleased section is turned away immediately rather than after a
+  # full lint and test run.
+  unreleased="$({{just_executable()}} unreleased)"
   current="$(uv version --short)"
   echo
   echo "Releasing from ${current}, with these entries under Unreleased:"
@@ -155,3 +164,17 @@ release:
   echo "Tagged ${tag}. Publish it with:"
   echo
   echo "    git push --follow-tags"
+
+# Print the CHANGELOG entries sitting under Unreleased. Both release-check and
+# release read this, one to refuse an empty section and the other to show what
+# is about to ship, so it is written once here.
+[private]
+unreleased:
+  #!/usr/bin/env python3
+  import pathlib, re
+  m = re.search(
+      r"^## Unreleased\s*\n(.*?)(?=^## v)",
+      pathlib.Path("CHANGELOG.md").read_text(),
+      re.S | re.M,
+  )
+  print((m.group(1).strip() if m else ""))
