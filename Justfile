@@ -1,3 +1,13 @@
+# A recipe argument is interpolated into a shell line, so a recipe taking one
+# wraps it in `quote()`. A dependency named with a version,
+# `siganalysis>=0.10.0`, otherwise has its `>` read as a redirect: the recipe
+# drops the constraint, acts on the bare package name, and leaves an empty
+# file called `=0.10.0` behind, all without failing. The variadic `*args` that
+# `test` and `cov` take is left unquoted on purpose, since quoting it would
+# collapse several arguments into one. Note that the comment immediately above
+# a recipe is the description `just --list` prints, so a note like this one
+# belongs here rather than against the recipe it explains.
+
 # List the available justfile recipes
 [group('general')]
 @default:
@@ -11,7 +21,7 @@ loc:
 # Search pydoc for given term
 [group('general')]
 doc term:
-  uv run python -m pydoc {{term}}
+  uv run python -m pydoc {{quote(term)}}
 
 # Lint and format code and apply fixes
 [group('test')]
@@ -40,17 +50,17 @@ cov *args:
 # Add dependency
 [group('dependencies')]
 add dep:
-  uv add {{dep}}
+  uv add {{quote(dep)}}
 
 # Add dependency to the development group
 [group('dependencies')]
 dev dep:
-  uv add --dev {{dep}}
+  uv add --dev {{quote(dep)}}
 
 # Update dep to the newest ver allowed by pyproject.toml
 [group('dependencies')]
 up dep:
-  uv lock --upgrade-package {{dep}}
+  uv lock --upgrade-package {{quote(dep)}}
   uv sync
 
 # Update all dependencies
