@@ -31,7 +31,7 @@ Issues = "https://github.com/questrail/keysight/issues"
 # Pinned: build backends are not in uv.lock, so an unpinned one moves under
 # the release that signs the artifacts.
 [build-system]
-requires = ["uv_build>=0.12.9,<0.13.0"]
+requires = ["uv_build>=0.12.9,<0.14.0"]
 build-backend = "uv_build"
 
 [tool.ruff]
